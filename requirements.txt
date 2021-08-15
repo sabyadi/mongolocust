@@ -1,0 +1,4 @@
+locust
+pymongo
+dnspython
+faker
