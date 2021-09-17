@@ -103,7 +103,7 @@ class MongoSampleUser(MongoUser):
     def do_insert_document(self):
         self._process('insert-document', self.insert_single_document)
 
-    @task(weight=1)
+    @task(weight=0)
     def do_insert_document_bulk(self):
         self._process('insert-document-bulk', lambda: self.collection.insert_many(
             [self.generate_new_document() for _ in
