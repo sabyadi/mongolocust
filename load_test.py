@@ -109,6 +109,6 @@ class MongoSampleUser(MongoUser):
             [self.generate_new_document() for _ in
              range(DOCS_PER_BATCH)], ordered=False))
 
-    @task(weight=1)
+    @task(weight=0)
     def do_run_aggregation_pipeline(self):
         self._process('run-aggregation-pipeline', self.run_aggregation_pipeline)
