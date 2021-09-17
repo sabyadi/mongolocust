@@ -7,9 +7,14 @@ from settings import CLUSTER_URL, DB_NAME
 
 import time
 import pymongo
+import os
 
 # singleton Mongo client
-CLIENT = pymongo.MongoClient(CLUSTER_URL)
+MONGO_URI = os.environ.get('MONGO_URI')
+if MONGO_URI:
+    CLIENT = pymongo.MongoClient(MONGO_URI)
+else:
+    CLIENT = pymongo.MongoClient(CLUSTER_URL)
 
 
 class MongoUser(User):
@@ -61,9 +66,11 @@ class MongoUser(User):
 
         # create the collection if not exists
         if coll_name not in self.db.collection_names():
-            collection = self.db.create_collection(coll_name, codec_options=codec_options)
+            collection = self.db.create_collection(
+                coll_name, codec_options=codec_options)
         else:
-            collection = self.db.get_collection(coll_name, codec_options=codec_options)
+            collection = self.db.get_collection(
+                coll_name, codec_options=codec_options)
 
         # create the required indexes
         if indexes:
