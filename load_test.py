@@ -5,7 +5,7 @@ from settings import COLLECTION_NAME
 
 import pymongo
 import random
-
+import os
 
 # docs to insert per batch insert
 DOCS_PER_BATCH = 100
@@ -13,6 +13,10 @@ DOCS_PER_BATCH = 100
 # number of cache entries for queries
 NAMES_TO_CACHE = 1000
 
+INSERT_WEIGHT = os.environ.get('INSERT_WEIGHT') if os.environ.get('INSERT_WEIGHT') else 3
+FIND_WEIGHT = os.environ.get('FIND_WEIGHT') if os.environ.get('FIND_WEIGHT') else 1
+BULK_WEIGHT = os.environ.get('BULK_WEIGHT') if os.environ.get('BULK_WEIGHT') else 1
+AGG_WEIGHT = os.environ.get('AGG_WEIGHT') if os.environ.get('AGG_WEIGHT') else 1
 
 class MongoSampleUser(MongoUser):
     """
@@ -95,20 +99,20 @@ class MongoSampleUser(MongoUser):
         cached_names = random.choice(self.name_cache)
         self.collection.find_one({'first_name': cached_names[0], 'last_name': cached_names[1]})
 
-    @task(weight=3)
+    @task(weight=FIND_WEIGHT)
     def do_find_document(self):
         self._process('find-document', self.find_document)
 
-    @task(weight=1)
+    @task(weight=INSERT_WEIGHT)
     def do_insert_document(self):
         self._process('insert-document', self.insert_single_document)
 
-    @task(weight=0)
+    @task(weight=BULK_WEIGHT)
     def do_insert_document_bulk(self):
         self._process('insert-document-bulk', lambda: self.collection.insert_many(
             [self.generate_new_document() for _ in
              range(DOCS_PER_BATCH)], ordered=False))
 
-    @task(weight=0)
+    @task(weight=AGG_WEIGHT)
     def do_run_aggregation_pipeline(self):
         self._process('run-aggregation-pipeline', self.run_aggregation_pipeline)
