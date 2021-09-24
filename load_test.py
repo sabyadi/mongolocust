@@ -8,7 +8,7 @@ import random
 import os
 
 # docs to insert per batch insert
-DOCS_PER_BATCH = 100
+DOCS_PER_BATCH = int(os.environ.get('DOCS_PER_BATCH')) if os.environ.get('MONGO_URI') else 100
 
 # number of cache entries for queries
 NAMES_TO_CACHE = 1000
