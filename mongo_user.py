@@ -33,7 +33,7 @@ class MongoUser(User):
         self.collection, self.collection_secondary = None, None
         self.faker = Faker()
 
-    def _process(self, name, func):
+    def _process(self, name, func, batch_size=1):
         """
         Run something in the locust context and time its execution
         :param name: operation name to be used in stats output
@@ -46,14 +46,16 @@ class MongoUser(User):
             # output the error for debugging purposes
             print(e)
             total_time = int((time.time() - start_time) * 1000)
-            self.environment.events.request_failure.fire(
-                request_type='mongo', name=name, response_time=total_time, exception=e, response_length=0,
-            )
+            for x in range(batch_size):
+                self.environment.events.request_failure.fire(
+                    request_type='mongo', name=name, response_time=total_time, exception=e, response_length=0,
+                )
         else:
             total_time = int((time.time() - start_time) * 1000)
-            self.environment.events.request_success.fire(
-                request_type='mongo', name=name, response_time=total_time, response_length=1
-            )
+            for x in range(batch_size):
+                self.environment.events.request_success.fire(
+                    request_type='mongo', name=name, response_time=total_time, response_length=1
+                )
 
     def ensure_collection(self, coll_name, indexes, read_preference=pymongo.read_preferences.Secondary()):
         """
