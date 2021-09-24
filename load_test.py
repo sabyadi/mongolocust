@@ -13,10 +13,10 @@ DOCS_PER_BATCH = 100
 # number of cache entries for queries
 NAMES_TO_CACHE = 1000
 
-INSERT_WEIGHT = os.environ.get('INSERT_WEIGHT') if os.environ.get('INSERT_WEIGHT') else 3
-FIND_WEIGHT = os.environ.get('FIND_WEIGHT') if os.environ.get('FIND_WEIGHT') else 1
-BULK_WEIGHT = os.environ.get('BULK_WEIGHT') if os.environ.get('BULK_WEIGHT') else 1
-AGG_WEIGHT = os.environ.get('AGG_WEIGHT') if os.environ.get('AGG_WEIGHT') else 1
+INSERT_WEIGHT = int(os.environ.get('INSERT_WEIGHT')) if os.environ.get('INSERT_WEIGHT') else 3
+FIND_WEIGHT = int(os.environ.get('FIND_WEIGHT')) if os.environ.get('FIND_WEIGHT') else 1
+BULK_WEIGHT = int(os.environ.get('BULK_WEIGHT')) if os.environ.get('BULK_WEIGHT') else 1
+AGG_WEIGHT = int(os.environ.get('AGG_WEIGHT')) if os.environ.get('AGG_WEIGHT') else 1
 
 class MongoSampleUser(MongoUser):
     """
