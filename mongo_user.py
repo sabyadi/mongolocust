@@ -3,18 +3,13 @@ from faker import Faker
 from locust import User, between
 
 from decimal_codec import DecimalCodec
-from settings import CLUSTER_URL, DB_NAME
+from settings import DEFAULTS
 
 import time
 import pymongo
-import os
 
 # singleton Mongo client
-MONGO_URI = os.environ.get('MONGO_URI')
-if MONGO_URI:
-    CLIENT = pymongo.MongoClient(MONGO_URI)
-else:
-    CLIENT = pymongo.MongoClient(CLUSTER_URL)
+CLIENT = pymongo.MongoClient(DEFAULTS['CLUSTER_URL'])
 
 
 class MongoUser(User):
@@ -29,7 +24,7 @@ class MongoUser(User):
 
     def __init__(self, environment):
         super().__init__(environment)
-        self.db = CLIENT[DB_NAME]
+        self.db = CLIENT[DEFAULTS['DB_NAME']]
         self.collection, self.collection_secondary = None, None
         self.faker = Faker()
 
@@ -38,6 +33,7 @@ class MongoUser(User):
         Run something in the locust context and time its execution
         :param name: operation name to be used in stats output
         :param func: what to run
+        :param batch_size: how many operations were executed if this was a batch
         """
         start_time = time.time()
         try:
@@ -52,7 +48,8 @@ class MongoUser(User):
                 )
         else:
             total_time = int((time.time() - start_time) * 1000)
-            for x in range(batch_size):
+            # ToDo: find a better way of signaling multiple executions to locust and move away from deprecated APIs
+            for _ in range(batch_size):
                 self.environment.events.request_success.fire(
                     request_type='mongo', name=name, response_time=total_time, response_length=1
                 )

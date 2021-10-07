@@ -1,22 +1,14 @@
 from locust import task, between
 
 from mongo_user import MongoUser
-from settings import COLLECTION_NAME
+from settings import DEFAULTS
 
 import pymongo
 import random
-import os
-
-# docs to insert per batch insert
-DOCS_PER_BATCH = int(os.environ.get('DOCS_PER_BATCH')) if os.environ.get('MONGO_URI') else 100
 
 # number of cache entries for queries
 NAMES_TO_CACHE = 1000
 
-INSERT_WEIGHT = int(os.environ.get('INSERT_WEIGHT')) if os.environ.get('INSERT_WEIGHT') else 3
-FIND_WEIGHT = int(os.environ.get('FIND_WEIGHT')) if os.environ.get('FIND_WEIGHT') else 1
-BULK_WEIGHT = int(os.environ.get('BULK_WEIGHT')) if os.environ.get('BULK_WEIGHT') else 1
-AGG_WEIGHT = int(os.environ.get('AGG_WEIGHT')) if os.environ.get('AGG_WEIGHT') else 1
 
 class MongoSampleUser(MongoUser):
     """
@@ -74,7 +66,7 @@ class MongoSampleUser(MongoUser):
         # prepare the collection
         index1 = pymongo.IndexModel([('first_name', pymongo.ASCENDING), ("last_name", pymongo.DESCENDING)],
                                     name="idx_first_last")
-        self.collection, self.collection_secondary = self.ensure_collection(COLLECTION_NAME, [index1])
+        self.collection, self.collection_secondary = self.ensure_collection(DEFAULTS['COLLECTION_NAME'], [index1])
         self.name_cache = []
 
     def insert_single_document(self):
@@ -99,20 +91,20 @@ class MongoSampleUser(MongoUser):
         cached_names = random.choice(self.name_cache)
         self.collection.find_one({'first_name': cached_names[0], 'last_name': cached_names[1]})
 
-    @task(weight=FIND_WEIGHT)
+    @task(weight=DEFAULTS['FIND_WEIGHT'])
     def do_find_document(self):
         self._process('find-document', self.find_document)
 
-    @task(weight=INSERT_WEIGHT)
+    @task(weight=DEFAULTS['INSERT_WEIGHT'])
     def do_insert_document(self):
         self._process('insert-document', self.insert_single_document)
 
-    @task(weight=BULK_WEIGHT)
+    @task(weight=DEFAULTS['BULK_INSERT_WEIGHT'])
     def do_insert_document_bulk(self):
         self._process('insert-document-bulk', lambda: self.collection.insert_many(
             [self.generate_new_document() for _ in
-             range(DOCS_PER_BATCH)], ordered=False), DOCS_PER_BATCH)
+             range(DEFAULTS['DOCS_PER_BATCH'])], ordered=False), DEFAULTS['DOCS_PER_BATCH'])
 
-    @task(weight=AGG_WEIGHT)
+    @task(weight=DEFAULTS['AGG_PIPE_WEIGHT'])
     def do_run_aggregation_pipeline(self):
         self._process('run-aggregation-pipeline', self.run_aggregation_pipeline)
