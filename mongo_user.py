@@ -64,7 +64,7 @@ class MongoUser(User):
         codec_options = CodecOptions(type_registry=type_registry)
 
         # create the collection if not exists
-        if coll_name not in self.db.collection_names():
+        if coll_name not in self.db.list_collection_names():
             collection = self.db.create_collection(
                 coll_name, codec_options=codec_options)
         else:
