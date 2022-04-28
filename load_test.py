@@ -1,6 +1,6 @@
-from locust import task, between
+from locust import between
 
-from mongo_user import MongoUser
+from mongo_user import MongoUser, mongodb_task
 from settings import DEFAULTS
 
 import pymongo
@@ -34,6 +34,7 @@ class MongoSampleUser(MongoUser):
         }
         return document
 
+    @mongodb_task(weight=int(DEFAULTS['AGG_PIPE_WEIGHT']))
     def run_aggregation_pipeline(self):
         """
         Run an aggregation pipeline on a secondary node
@@ -69,6 +70,7 @@ class MongoSampleUser(MongoUser):
         self.collection, self.collection_secondary = self.ensure_collection(DEFAULTS['COLLECTION_NAME'], [index1])
         self.name_cache = []
 
+    @mongodb_task(weight=int(DEFAULTS['INSERT_WEIGHT']))
     def insert_single_document(self):
         document = self.generate_new_document()
 
@@ -82,6 +84,7 @@ class MongoSampleUser(MongoUser):
 
         self.collection.insert_one(document)
 
+    @mongodb_task(weight=int(DEFAULTS['FIND_WEIGHT']))
     def find_document(self):
         # at least one insert needs to happen
         if not self.name_cache:
@@ -91,20 +94,8 @@ class MongoSampleUser(MongoUser):
         cached_names = random.choice(self.name_cache)
         self.collection.find_one({'first_name': cached_names[0], 'last_name': cached_names[1]})
 
-    @task(weight=DEFAULTS['FIND_WEIGHT'])
-    def do_find_document(self):
-        self._process('find-document', self.find_document)
-
-    @task(weight=DEFAULTS['INSERT_WEIGHT'])
-    def do_insert_document(self):
-        self._process('insert-document', self.insert_single_document)
-
-    @task(weight=DEFAULTS['BULK_INSERT_WEIGHT'])
-    def do_insert_document_bulk(self):
-        self._process('insert-document-bulk', lambda: self.collection.insert_many(
+    @mongodb_task(weight=int(DEFAULTS['BULK_INSERT_WEIGHT']), batch_size=int(DEFAULTS['DOCS_PER_BATCH']))
+    def insert_documents_bulk(self):
+        self.collection.insert_many(
             [self.generate_new_document() for _ in
-             range(DEFAULTS['DOCS_PER_BATCH'])], ordered=False), DEFAULTS['DOCS_PER_BATCH'])
-
-    @task(weight=DEFAULTS['AGG_PIPE_WEIGHT'])
-    def do_run_aggregation_pipeline(self):
-        self._process('run-aggregation-pipeline', self.run_aggregation_pipeline)
+             range(int(DEFAULTS['DOCS_PER_BATCH']))])

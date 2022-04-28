@@ -94,6 +94,11 @@ the right IP address from the previous step):
 You can run multiple instances of the worker on every machine, since the workers are single threaded. Multiple 
 machines can be used to run the workers.
 
+## Running distributed locust in kubernetes
+
+Distributed locust can be executed in kubernetes environments. Using kubernetes allows for simple worker scalability in 
+the distributed mode. Please refer to the [README.md](k8s/README.md) in the [k8s](k8s) folder for details.
+
 Debugging the workload
 ----------------------
 It is possible to debug locust workloads. The [main.py](main.py) contains the code required to run the 

@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: locust-worker-deployment
+  labels:
+    app: locust-worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: locust-worker
+  template:
+    metadata:
+      labels:
+        app: locust-worker
+    spec:
+      containers:
+      - name: locust-worker
+        image: adilet123/mongolocust:latest
+        imagePullPolicy: Always
+        env:
+          - name: CLUSTER_URL
+            valueFrom:
+              secretKeyRef:
+                name: mongo-secret
+                key: CLUSTER_URL
+          - name: LOCUST_OPTIONS
+            value: "--worker --master-host master"
+          - name: BULK_INSERT_WEIGHT
+            value: "1"
+          - name: FIND_WEIGHT
+            value: "1"
+          - name: AGG_PIPE_WEIGHT
+            value: "1"
+          - name: INSERT_WEIGHT
+            value: "1"
+        ports:
+        - containerPort: 8089
+        volumeMounts:
+          - name: load-file
+            mountPath: /load_test.py
+            subPath: load_test.py
+          - name: settings-file
+            mountPath: /settings.py
+            subPath: settings.py
+      volumes:
+        - name: load-file
+          configMap:
+            name: load-file
+        - name: settings-file
+          configMap:
+            name: settings-file
