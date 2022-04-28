@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: locust-master
+  labels:
+    app: locust-master
+spec:
+  containers:
+  - name: locust-master
+    image: adilet123/mongolocust:latest
+    imagePullPolicy: Always
+    env:
+      - name: CLUSTER_URL
+        valueFrom:
+          secretKeyRef:
+            name: mongo-secret
+            key: CLUSTER_URL
+      - name: LOCUST_OPTIONS
+        value: "--master"
+    ports:
+    - containerPort: 8089
+    volumeMounts:
+      - name: load-file
+        mountPath: /load_test.py
+        subPath: load_test.py
+      - name: settings-file
+        mountPath: /settings.py
+        subPath: settings.py
+  volumes:
+    - name: load-file
+      configMap:
+        name: load-file
+    - name: settings-file
+      configMap:
+        name: settings-file
