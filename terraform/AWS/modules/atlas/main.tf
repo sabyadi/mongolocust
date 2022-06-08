@@ -8,10 +8,7 @@ terraform {
   required_version = ">= 1.0.8"
 }
 
-provider "mongodbatlas" {
-  public_key  = var.publicKey
-  private_key = var.privateKey
-}
+
 
 resource "mongodbatlas_cluster" "locust_cluster" {
   project_id   = var.projectId

@@ -11,6 +11,7 @@ variable "awsProfile" {
 variable "atlasRegion" {
   type        = string
   description = "Region of the Atlas Cluster. Must be in the format 'EU_CENTRAL_1'"
+  default = ""
 }
 
 variable "locustMasterInstanceType" {
@@ -50,16 +51,19 @@ variable "keyPath" {
 variable "atlasPublicApiKey" {
   type        = string
   description = "Atlas Public API key with Project Owner role"
+  default = ""
 }
 
 variable "atlasPrivateApiKey" {
   type        = string
   description = "Atlas Private API key with Project Owner role"
+  default = ""
 }
 
 variable "atlasProjectId" {
   type        = string
   description = "Atlas project id which will hold the load test cluster"
+  default = ""
 }
 
 variable "atlasNumShards" {
@@ -71,11 +75,13 @@ variable "atlasNumShards" {
 variable "atlasmajorVersion" {
   type        = string
   description = "Major release of MongoDB to be deployed on Atlas"
+  default = ""
 }
 
 variable "atlasMSize" {
   type        = string
   description = "Instance size of MongoDB Cluster e.g. 'M30'"
+  default = ""
 }
 
 variable "diskSizeGb" {
@@ -116,4 +122,10 @@ variable "locustExecuteFile" {
   type        = string
   description = "Locust file for execution"
   default     = "load_test.py"
+}
+
+variable "connectionString" {
+  type = string
+  description = "Connection String of an existing MongoDB deployment"
+  default = ""
 }
