@@ -1,7 +1,8 @@
 ## How to setup
 
 1. [Install Terraform CLI ](https://learn.hashicorp.com/tutorials/terraform/install-cli) following the offical documentation
-2. Create _terraform.tfvars_ within the terraform(terraform) directory. For this copy _terraform.tfvars.template_, fill in your required paramters and rename the file to _terraform.tfvars_
+2. Create _terraform.tfvars_ within the terraform(terraform) directory. For this copy _terraform.tfvars.template_, fill in your required paramters and rename the file to _terraform.tfvars_.
+   When testing with an existing MongoDB Cluster ensure to provide the full connection string at _connectionString_ including write concern and username & password
 3. Open a terminal within the cloud provider directory
 4. Run
 

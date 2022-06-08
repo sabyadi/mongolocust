@@ -29,6 +29,9 @@ workersPerNode            = 8 #recommended to be the same number as vCPUs of the
 # Provide Locust file for execution. Must be included in 'locustFiles'. Does not need to be provided if using the default files
 #locustExecuteFile = "load_test.py"
 
+# Provide Connection String when testing for an existing MongoDB Cluster
+# In this case, terraform will not create an Atlas Cluster and AWS PrivateLink
+connectionString = ""
 
 ###############################
 # Atlas Cluster Configuration #

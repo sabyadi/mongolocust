@@ -1,5 +1,10 @@
 terraform {
-
+  required_providers {
+    mongodbatlas = {
+      source  = "mongodb/mongodbatlas"
+      version = "1.0.1"
+    }
+  }
   required_version = ">= 1.0.8"
 }
 
@@ -8,8 +13,14 @@ provider "aws" {
   profile = var.awsProfile
 }
 
+provider "mongodbatlas" {
+  public_key  = var.atlasPublicApiKey
+  private_key = var.atlasPrivateApiKey
+}
+
 module "atlasCluster" {
   source                 = "./modules/atlas"
+  count                  = var.connectionString =="" ? 1:0
   region                 = var.region
   atlasRegion            = var.atlasRegion
   publicKey              = var.atlasPublicApiKey
@@ -65,5 +76,5 @@ output "locust_execution_file" {
 }
 
 output "connection_string" {
-  value = module.atlasCluster.connection_string
+  value = var.connectionString =="" ? module.atlasCluster[0].connection_string : var.connectionString
 }
