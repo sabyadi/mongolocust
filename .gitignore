@@ -130,3 +130,9 @@ dmypy.json
 
 .idea/
 settings.py
+.DS_Store
+
+#terraform
+.terraform*
+terraform.tfstate*
+terraform.tfvars
